@@ -26,7 +26,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
 from img_processing_functions import *
-from como_image_processing.msg import LineData
+from image_processing.msg import LineData
 
 
 '''
@@ -230,7 +230,7 @@ class lineProcessor:
         takes an image as input and finds contours in it
         returns the contours
         '''
-        ret_im, contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         return contours
     def vote_for_contours(self, contours, cols, rows, min_area, min_perimeter):
         '''
