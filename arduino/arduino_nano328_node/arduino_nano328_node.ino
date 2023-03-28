@@ -209,7 +209,11 @@ void setup()
   car.initEncoders();
   car.initRCInput();
   car.initActuators();
-
+  
+  // Specify baud rate
+  Serial.begin(57600);
+  nh.getHardware()->setBaud(57600);  
+  
   // Start ROS node
   nh.initNode();
 
@@ -218,6 +222,7 @@ void setup()
   nh.advertise(pub_rc_inputs);
   nh.advertise(pub_vel_est);
   nh.subscribe(sub_ecu);
+  nh.negotiateTopics();
 
   // Arming ESC, 1 sec delay for arming and ROS
   car.armActuators();
