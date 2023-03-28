@@ -4,7 +4,7 @@ import sys
 import rospy
 from barc.msg import ECU, Encoder
 #from barc.srv import encoder_vel_calc
-from como_image_processing.msg import LineData
+from image_processing.msg import LineData
 import time
 from numpy import pi
 from std_msgs.msg import Float64

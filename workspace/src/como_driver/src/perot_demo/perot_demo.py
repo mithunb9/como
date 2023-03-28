@@ -17,7 +17,7 @@ Oct 11, 2018
 import roslib
 import rospy
 from barc.msg import ECU, Encoder
-from como_image_processing.msg import LineData
+from image_processing.msg import LineData
 from numpy import pi
 from std_msgs.msg import Float64
 from std_msgs.msg import Bool
