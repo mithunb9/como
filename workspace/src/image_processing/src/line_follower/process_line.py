@@ -28,6 +28,8 @@ from cv_bridge import CvBridge, CvBridgeError
 from img_processing_functions import *
 from image_processing.msg import LineData
 
+NAMESPACE = rospy.get_namespace()
+NAMESPACE = NAMESPACE[:-1] # removes slash at the end
 
 '''
 Notes:
@@ -73,7 +75,7 @@ class imgFetcher:
     '''
     def __init__(self, topic, mode):
         self.bridge = CvBridge() # img bridge
-        self.img_sub = rospy.Subscriber(topic, Image, self.img_callback, queue_size = 1) # topic to subscribe to
+        self.img_sub = rospy.Subscriber(NAMESPACE + topic, Image, self.img_callback, queue_size = 1) # topic to subscribe to
         self.img = [] # obtained image
         self.img_indicator = '' # indicator for image '' if no img, 'gray' if gray image, 'color' if color image
         # self.img_encoding is the expected encoding
@@ -609,7 +611,7 @@ class lineDataPublisher:
     def __init__(self):
         self.line_orientation = [] # orientation of the line relative to the car body frame. The first value is the angle in radian while the second is the angle in degrees
         self.line_center_position = [] # position of the line's center relative to the car body frame. Contains an x-y pair indicating the distance in meters
-        self.line_data_pub = rospy.Publisher("/line_data", LineData, queue_size = 1)
+        self.line_data_pub = rospy.Publisher(NAMESPACE + "/line_data", LineData, queue_size = 1)
     def import_data(self, ang, pos):
         '''
         populates the line orientation and line center position variables in self.
@@ -705,7 +707,7 @@ def main():
     rate = rospy.Rate(30)
 
     # load parameters from ros parameter server
-    nodename = "/process_line"
+    nodename = NAMESPACE + "/process_line"
     line_topic_name = rospy.get_param(nodename + "/LineSub" + "/topic_name")
     threshold = rospy.get_param(nodename + "/LineParams" + "/threshold")
     width_line = rospy.get_param(nodename + "/LineParams" + "/width_of_line")
@@ -716,9 +718,9 @@ def main():
     path = rospy.get_param(nodename + "/path_to_corners")
 
     # load parameters from img_preprocessing node
-    num_horizontal_checkerboard_corners = rospy.get_param("/img_preprocessing" + "/CheckerboardParams" + "/num_internal_checkerboard_corners_horizontally")
-    num_vertical_checkerboard_corners = rospy.get_param("/img_preprocessing" + "/CheckerboardParams" + "/num_internal_checkerboard_corners_vertically")
-    line_img_indicator = rospy.get_param('/elp_cam_bridge' + "/imgMode")
+    num_horizontal_checkerboard_corners = rospy.get_param(NAMESPACE + "/img_preprocessing" + "/CheckerboardParams" + "/num_internal_checkerboard_corners_horizontally")
+    num_vertical_checkerboard_corners = rospy.get_param(NAMESPACE + "/img_preprocessing" + "/CheckerboardParams" + "/num_internal_checkerboard_corners_vertically")
+    line_img_indicator = rospy.get_param(NAMESPACE + '/elp_cam_bridge' + "/imgMode")
 
 
     # create objects

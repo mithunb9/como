@@ -1,4 +1,5 @@
 string state
+string namespace
 ---
-bool result
+string result
 

@@ -23,14 +23,15 @@ from std_msgs.msg import Float64
 from std_msgs.msg import Bool
 from std_msgs.msg import String
 
-
+NAMESPACE = rospy.get_namespace()
+NAMESPACE = NAMESPACE[:-1] # removes slash at the end
 
 class InterSub:
 	'''
 	Subscribes to the choice topic
 	'''
 	def __init__(self):
-		self.str_sub = rospy.Subscriber("/choice", String, self.callback, queue_size =1)
+		self.str_sub = rospy.Subscriber(NAMESPACE + "/choice", String, self.callback, queue_size =1)
 		
 	def callback(self, data):
 		rospy.loginfo(data.data)
@@ -43,7 +44,7 @@ class StrSub:
 	'''
 	def __init__(self):
 		self.str_cmd = 0.0
-		self.str_sub = rospy.Subscriber("/ecu/line_follower/servo", Float64, self.callback, queue_size =1)
+		self.str_sub = rospy.Subscriber(NAMESPACE + "/ecu/line_follower/servo", Float64, self.callback, queue_size =1)
 		
 	def callback(self, data):
 		self.str_cmd = data.data
@@ -57,7 +58,7 @@ class FlagSub:
 	'''
 	def __init__(self):
 		self.collision_flag = False
-		self.str_sub = rospy.Subscriber("/lidar/collision_flag", Bool, self.callback, queue_size =1)
+		self.str_sub = rospy.Subscriber(NAMESPACE + "/lidar/collision_flag", Bool, self.callback, queue_size =1)
 		
 	def callback(self, data):
 		self.collision_flag = data.data
@@ -71,7 +72,7 @@ class ECUPub:
 	'''
 	def __init__(self):
 		self.ecu = ECU(0.,0.)
-		self.ecu_pub = rospy.Publisher('/temp_ecu', ECU, queue_size = 1)
+		self.ecu_pub = rospy.Publisher(NAMESPACE + '/temp_ecu', ECU, queue_size = 1)
 		
 	def set_ecu(self, motor, servo):
 		self.ecu = ECU(float(motor), float(servo)*pi/180.0)
@@ -109,4 +110,3 @@ if __name__ == "__main__":
 	except rospy.ROSInterruptException:
 		rospy.logfatal("ROS Interrupt. Shutting down line_follower_ctrl node")
 		pass
-

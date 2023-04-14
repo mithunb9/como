@@ -10,6 +10,9 @@ from numpy import pi
 from std_msgs.msg import Float64
 
 
+NAMESPACE = rospy.get_namespace()
+NAMESPACE = NAMESPACE[:-1] # removes slash at the end
+
 # TO BE MOVED TO A CONFIG FILE
 heading_ctrl_Kp= 7.0
 heading_ctrl_ctrl_max= 90.0
@@ -92,7 +95,7 @@ class LineDataFetcher:
 	Fetches data published to /line_data 
 	'''
 	def __init__(self):
-		self.data_sub = rospy.Subscriber("/line_data", LineData, self.data_callback, queue_size = 1)
+		self.data_sub = rospy.Subscriber(NAMESPACE + "/line_data", LineData, self.data_callback, queue_size = 1)
 		self.line_data = []
 
 	def data_callback(self, linedata):
@@ -110,7 +113,7 @@ class VelEstFetcher:
 	The data is calculated on the Arduino and published immediately.
 	'''
 	def __init__(self):
-		self.data_sub = rospy.Subscriber("/vel_est", Encoder, self.data_callback, queue_size = 1)
+		self.data_sub = rospy.Subscriber(NAMESPACE + "/vel_est", Encoder, self.data_callback, queue_size = 1)
 		self.encoder_vel_data = []
 	
 	def data_callback(self, data):
@@ -289,7 +292,7 @@ class LineFollower:
 class StrPub:
 	def __init__(self):
 		self.str_cmd = 0.0
-		self.str_pub = rospy.Publisher("/ecu/line_follower/servo", Float64, queue_size = 1)
+		self.str_pub = rospy.Publisher(NAMESPACE + "/ecu/line_follower/servo", Float64, queue_size = 1)
 	
 	def set_str(self, str_cmd):
 		self.str_cmd = str_cmd

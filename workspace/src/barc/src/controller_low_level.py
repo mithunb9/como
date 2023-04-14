@@ -24,6 +24,9 @@ from barc.msg import ECU
 from numpy import pi
 import rospy
 
+NAMESPACE = rospy.get_namespace()
+NAMESPACE = NAMESPACE[:-1] # removes slash at the end
+
 motor_pwm = 90 # Motor neutral value (no movement)
 servo_pwm = 90 # Stearing neautral value (no movement)
 str_ang_max = 180 #35 # Max right turn (lower level codes saturates value) 
@@ -71,8 +74,8 @@ def arduino_interface():
     init_node('arduino_interface')
     b0  = get_param("input_gain")
 
-    Subscriber('ecu', ECU, pwm_converter_callback, queue_size = 10) # queue_size set to 1 (instead of 10) in Vercantez/barc
-    ecu_pub = Publisher('ecu_pwm', ECU, queue_size = 10) # queue_size set to 1 (instead of 10) in Vercantez/barc
+    Subscriber(NAMESPACE + '/ecu', ECU, pwm_converter_callback, queue_size = 10) # queue_size set to 1 (instead of 10) in Vercantez/barc
+    ecu_pub = Publisher(NAMESPACE + '/ecu_pwm', ECU, queue_size = 10) # queue_size set to 1 (instead of 10) in Vercantez/barc
 
     # Set motor to neutral on shutdown
     on_shutdown(neutralize)

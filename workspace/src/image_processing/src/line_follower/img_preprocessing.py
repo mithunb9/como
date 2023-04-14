@@ -28,7 +28,8 @@ from cv_bridge import CvBridge, CvBridgeError
 
 from img_processing_functions import *
 
-
+NAMESPACE = rospy.get_namespace()
+NAMESPACE = NAMESPACE[:-1] # removes slash at the end
 
 class imgFetcher:
     '''
@@ -36,7 +37,7 @@ class imgFetcher:
     '''
     def __init__(self):
         self.bridge = CvBridge()
-        self.img_sub = rospy.Subscriber("/cam/raw", Image, self.img_callback, queue_size = 1)
+        self.img_sub = rospy.Subscriber(NAMESPACE + "/cam/raw", Image, self.img_callback, queue_size = 1)
         self.img_raw = [] # image obtained from callback
         self.img_raw_indicator = -1 # indicator for image -1 if no img, 'gray' if gray image, 'color' if color image
         self.expected_img_mode = -1 # if unset --> -1, if gray image is expected --> 'gray', if color image expected --> 'color'
@@ -433,8 +434,8 @@ class imgPublisher:
         self.forward_img = [] # top part of the image containing the image in front of the car
         self.forward_img_indicator = -1 # # indicator for forward image -1 if no img, 'gray' if gray image, 'color' if color image
 
-        self.line_img_pub = rospy.Publisher("/cam/line_img", Image, queue_size = 1)
-        self.forward_img_pub = rospy.Publisher("/cam/forward_img", Image, queue_size = 1)
+        self.line_img_pub = rospy.Publisher(NAMESPACE + "/cam/line_img", Image, queue_size = 1)
+        self.forward_img_pub = rospy.Publisher(NAMESPACE + "/cam/forward_img", Image, queue_size = 1)
 
     def import_line_img(self, img, indicator):
         '''
@@ -520,15 +521,15 @@ def main():
     rate = rospy.Rate(30)
 
     # load parameters from ros parameter server
-    nodename = "/img_preprocessing"
+    nodename = NAMESPACE + "/img_preprocessing"
 
     num_checkerboard_horizontal_corners = rospy.get_param(nodename + "/CheckerboardParams" + "/num_internal_checkerboard_corners_horizontally")
     num_checkerboard_vertical_corners = rospy.get_param(nodename + "/CheckerboardParams" + "/num_internal_checkerboard_corners_vertically")
     path = rospy.get_param(nodename + "/path_to_corners")
     #rospy.logfatal('path %s', path)
     #path = "/home/odroid/catkin_ws/src/como_image_processing/config"
-    #path = "/home/odroid/como/workspace/src/image_processing/config"
-    img_mode = rospy.get_param('/elp_cam_bridge' + "/imgMode")
+    path = "/home/nano3/como/workspace/src/image_processing/config"
+    img_mode = rospy.get_param(NAMESPACE + '/elp_cam_bridge' + "/imgMode")
 
     # create objects
     fetcher = imgFetcher()

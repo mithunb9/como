@@ -26,13 +26,16 @@ import rospy
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Bool
 
+NAMESPACE = rospy.get_namespace()
+NAMESPACE = NAMESPACE[:-1] # removes slash at the end
+
 class ScanSub:
 	'''
 	Subscribes to the lidar laser scan topic
 	'''
 	def __init__(self):
 		self.scan_data = []
-		self.scan_sub = rospy.Subscriber("/scan", LaserScan, self.callback, queue_size =1)
+		self.scan_sub = rospy.Subscriber(NAMESPACE + "/scan", LaserScan, self.callback, queue_size =1)
 		
 	def callback(self, data):
 		self.scan_data = data
@@ -129,7 +132,7 @@ class FlagPub:
 	Publishes a boolean value that specifies if an object is within collision range. Flag is set to true if there is a point within the specified angle range of the LIDAR that is below the minimum distance.
 	'''
 	def __init__(self):
-		self.collision_flag_pub = rospy.Publisher('/lidar/collision_flag', Bool, queue_size = 1)
+		self.collision_flag_pub = rospy.Publisher(NAMESPACE + '/lidar/collision_flag', Bool, queue_size = 1)
 
 	def publish_flag(self, collision_flag):
 		self.collision_flag_pub.publish(collision_flag)
@@ -141,7 +144,7 @@ def main():
 	rospy.init_node("lidar_collision_avoidance")
 	rate = rospy.Rate(15)
 	
-	nodename = "/lidar_collision_avoidance"
+	nodename = NAMESPACE + "/lidar_collision_avoidance"
 	min_dist = rospy.get_param(nodename + "/min_dist")
 	
 	old_seq = -1

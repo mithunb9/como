@@ -21,6 +21,8 @@ import roslib
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
+NAMESPACE = rospy.get_namespace()
+NAMESPACE = NAMESPACE[:-1] # removes slash at the end
 
 class ImagePublisher:
 
@@ -28,7 +30,7 @@ class ImagePublisher:
         self.bridge = CvBridge()
         self.keep_running = True
         #self.cam_pub = rospy.Publisher("/elp_cam/raw", Image, queue_size=1)
-        self.cam_pub = rospy.Publisher("/cam/raw", Image, queue_size=1) #To be replaced by above line
+        self.cam_pub = rospy.Publisher(NAMESPACE + "/cam/raw", Image, queue_size=1) #To be replaced by above line
         self.img_mode = ''
         self.cam_image_raw = []
 
@@ -55,7 +57,7 @@ def main():
     rospy.init_node("elp_cam_bridge", anonymous=True) #initialize ros node
     rate = rospy.Rate(120) #set publishing rate
     
-    nodename = '/elp_cam_bridge'
+    nodename = NAMESPACE + '/elp_cam_bridge'
     
     image_mode = rospy.get_param(nodename + '/imgMode')
     cam_path = rospy.get_param(nodename + '/camPath')
@@ -67,7 +69,7 @@ def main():
     #os.system('v4l2-ctl -d ' + cam_path + ' -c exposure_auto=50')
     #os.system('v4l2-ctl -d ' + cam_path + ' -c exposure_auto=50')
 
-    cam = cv2.VideoCapture() #create cam object
+    cam = cv2.VideoCapture('/dev/camera/elp') #create cam object
     cam.open(cam_path) #start cam based on cam_path
     #cam.open('/dev/video6')
 
