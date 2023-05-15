@@ -4,6 +4,7 @@ import roslib
 import rospy
 from barc.msg import ECU
 from como_driver.srv import Choice,ChoiceResponse
+from como_driver.msg import ChoicePass
 
 NAMESPACE = rospy.get_namespace()
 NAMESPACE = NAMESPACE[:-1] # removes slash at the end
@@ -29,43 +30,41 @@ class ECUSubscribe:
 	def get_ecu(self):
 		return self.ecu
 
-class ChoiceSVR:
+class ChoiceSub:
     def __init__(self):
-        self.choice = "start"
-        rospy.Service('choice_response', Choice, self.respond_to_choice)
+        self.sent_state = "start"
+        self.sent_namespace = ""
+        self.str_sub = rospy.Subscriber("/choice", ChoicePass, self.callback, queue_size=10)
 
-    def respond_to_choice(self, req):
-        if req.namespace == NAMESPACE:
-            if req.state == "start":
-                self.choice = "start"
-                return ChoiceResponse(self.choice + " " + NAMESPACE + ": Success")
-            elif req.state == "stop":
-                self.choice = "stop"
-                return ChoiceResponse(self.choice + " " + NAMESPACE + ": Success")
-            else:
-                return ChoiceResponse("Error: state does not exist")
-        else:
-            return ChoiceResponse("Error: Not the current global namespace. Current global namespace is " + NAMESPACE)
+    def callback(self, data):
+        self.sent_state = data.state
+        self.sent_namespace = data.namespace
 
-    def get_choice(self):
-        return self.choice
+    def get_sent_state(self):
+        return self.sent_state
 
+    def get_sent_namespace(self):
+        return self.sent_namespace
 
 def main():
 	rospy.init_node("intermediate_node", anonymous = True)
 	ecuPublish = ECUPublish()
 	ecuSubscribe = ECUSubscribe()
 	rate = rospy.Rate(30)
-	choiceServer = ChoiceSVR()
+	choiceSub = ChoiceSub()
 
 	while not rospy.is_shutdown():
 		ecu_transfer = ecuSubscribe.get_ecu()
-		choice_result = choiceServer.get_choice()
 
-		if choice_result == "stop":
-			ecuPublish.set_ecu(0, ecu_transfer.servo)
-		elif choice_result == "start":
-			ecuPublish.set_ecu(ecu_transfer.motor, ecu_transfer.servo)
+                sent_state = choiceSub.get_sent_state()
+                sent_namespace = choiceSub.get_sent_namespace()
+
+                ecuPublish.set_ecu(ecu_transfer.motor, ecu_transfer.servo)
+                if NAMESPACE == sent_namespace:
+                    if sent_state == "stop":
+                        ecuPublish.set_ecu(0, ecu_transfer.servo)
+                    elif sent_state == "start":
+                        ecuPublish.set_ecu(ecu_transfer.motor, ecu_transfer.servo)
 
 		ecuPublish.publish_ecu()
 

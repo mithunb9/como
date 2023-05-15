@@ -7,6 +7,8 @@
 
 <launch>
 
+    <group ns="como2">
+
     <!-- SYSTEM MODEL -->
     <!-- vehicle parameters -->
     <param name="L_a" type="double" value="0.125" />
@@ -44,6 +46,6 @@
 	
     <!-- choice for centralized server -->
       	<node pkg="como_driver" type="intermediate_node.py" name="intermediate_node" output="screen"/>	
-        
+</group>
 </launch>
 
