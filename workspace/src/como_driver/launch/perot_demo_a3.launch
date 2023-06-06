@@ -1,0 +1,47 @@
+<!-- Kevin Daniel
+    October 12, 2018
+  -->
+<!-- Updated February 10, 2023 - Sai Bommisetty -->
+
+<!-- Launch file for the Perot demo. Line follower + Collision avoidance using the LIDAR-->
+
+<launch>
+
+    <!-- SYSTEM MODEL -->
+    <!-- vehicle parameters -->
+    <param name="L_a" type="double" value="0.125" />
+    <param name="L_b" type="double" value="0.125" />
+    <!-- control parameters -->
+    <param name="input_gain" type="double" value="0.3" />
+    
+    <!-- ARDUINO -->
+    <node pkg="rosserial_python" type="serial_node.py" name="arduino_node" >
+        <param name="port" value="/dev/controller/nano" />
+    </node>
+
+	<!-- LOW-LEVEL CONTROLLER -->
+	<node pkg="barc" type="controller_low_level.py" name="low_level_controller" output="screen" />
+    
+    <!-- LIDAR -->
+    <include file="$(find controllers)/launch/rplidar_a3.launch" />
+    
+    <!-- intermediate level controller-->
+   
+
+	<!-- Start cam_bridge, img_preprocessing, and process_line -->
+        <include file="$(find image_processing)/launch/process_line.launch" />
+
+	<!-- INTERMEDIATE-LEVEL CONTROLLER (line_follower) -->
+	<node pkg="controllers" type="line_follower.py" name="line_follower" output="screen"/>
+	
+	<!-- INTERMEDIATE-LEVEL CONTROLLER (lidar_collision_avoidance) -->
+	<node pkg="controllers" type="lidar_collision_avoidance.py" name="lidar_collision_avoidance" output="screen" respawn="true">
+		<rosparam command="load" file="$(find controllers)/config/lidar_collision_avoidance_params.yml"/>
+	</node>
+
+    <!-- higher level controller-->
+	<node pkg="como_driver" type="perot_demo.py" name="perot_demo" output="screen"/>
+	
+	
+        
+</launch>
