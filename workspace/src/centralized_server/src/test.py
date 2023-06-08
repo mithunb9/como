@@ -20,13 +20,13 @@ def main():
     dt = 1.0/rateHz
     rate = Rate(rateHz)
     while not rospy.is_shutdown():
-        msg = rospy.wait_for_message("/vrpn_client_node/como/pose", PoseStamped)
-        # msg2
+        msg = rospy.wait_for_message("/vrpn_client_node/COMO4/pose", PoseStamped)
+        msg2 = rospy.wait_for_message("/vrpn_client_node/target_drone/pose", PoseStamped)
         
         x = msg.pose.position.x
         y = msg.pose.position.y
-        #goalX
-        #goalY
+        goalX = msg2.pose.position.x
+        goalY = msg2.pose.position.y
         rot_q = msg.pose.orientation
         (roll, pitch, theta) = euler_from_quaternion([rot_q.x, rot_q.y, rot_q.z, rot_q,w])
         inc_x = goalX - x
