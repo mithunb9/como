@@ -1,0 +1,17 @@
+<!-- Created Jun 28, 2023 - Sai Bommisetty -->
+
+<!-- Startup launch file for the LIDAR sensor -->
+
+<launch>
+
+	<arg name="lidar_type" default="A2"/>
+	
+	<group if="$(eval lidar_type =='A2')">
+		<include file="$(find controllers)/launch/rplidar.launch" />
+	</group>	
+	
+	<group if="$(eval lidar_type =='A3')">
+		<include file="$(find controllers)/launch/rplidar_a3.launch" />
+	</group>
+
+</launch>
