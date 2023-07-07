@@ -13,6 +13,7 @@ from geometry_msgs.msg import Point, Twist, PoseStamped
 from std_msgs.msg import Float64, String
 from numpy import pi
 from datetime import datetime
+import csv
 
 from como_tracks.oval_track_sim import * 
 
@@ -40,6 +41,26 @@ def log_track_data(x_track, y_track):
         row = str(x_track[i]) + ',' + str(y_track[i]) + ',' + str(heading_track[i]) + ',' + str(waypoint_x_track[i]) + ',' + str(waypoint_y_track[i]) + '\n'
         f.write(row)
     f.close()
+
+def save_track();
+    headers = ['x', 'y', 'heading', 'waypoint_x', 'waypoint_y']
+    data = []
+    for i in range(len(x_track)):
+        row = []
+        row.append(x_track[i])
+        row.append(y_track[i])
+        row.append(heading_track[i])
+        row.append(waypoint_x_track[i])
+        row.append(waypoint_y_track[i])
+        data.append(row)
+
+    timestamp = datetime.now()
+    formatted_timestamp = timestamp.strftime("%Y-%m-%d_%H:%M:%S")
+    fileName = "oval_track_single_lane_pos" + formatted_timestamp + ".csv"
+    path = os.path.join(package_path, 'data', 'logs', fileName)
+    writer = csv.writer(open(path, 'w'), delimiter=',', lineterminator='\n')
+    writer.writerow(headers)
+    writer.writerows(data)
 
 def main():
     rospy.init_node("speed_controller")
@@ -119,6 +140,7 @@ if __name__ == "__main__":
     try:
         main()
     except rospy.ROSInterruptException:
-        log_track_data(x_track, y_track)
+        #log_track_data(x_track, y_track)
+        save_track()
         rospy.logfatal("ROS Interrupt. Shutting down speed_controller node")
         pass
