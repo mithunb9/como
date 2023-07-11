@@ -50,6 +50,7 @@ add_message_files(
    Ultrasound.msg
    Encoder.msg
    ECU.msg
+   mod_ECU.msg
    Z_KinBkMdl.msg
    Input.msg
    barc_state.msg
