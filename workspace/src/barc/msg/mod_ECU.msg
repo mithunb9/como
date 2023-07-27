@@ -9,4 +9,4 @@
 float32 motor 
 float32 servo
 float32 motor_gain
-float32 steering_gain
+float32 servo_gain
