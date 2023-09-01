@@ -2,20 +2,40 @@ from Queue import Queue
 from rospy import Publisher
 from math import sqrt
 from datetime import datetime
+import numpy as np
+#from pykalman import KalmanFilter
+import random
 
-def calculate_vel(p1, p2, rate):
+def calculate_vel(p1, p2, rate, prev_est):
     del_x = p2[0] - p1[0]
     del_y = p2[1] - p1[1]
     dis = sqrt(del_x ** 2+ del_y ** 2)
-    return dis*rate # multiply by frequency of program
+    vel_est = dis * rate
+    if abs(vel_est - prev_est) > 0.5:
+	vel_est = prev_est
+    return vel_est # multiply by frequency of program
 
-def shift_queue(q, est_vel, shift_num, rate):
+def trim_outliers(vel_est, trim_count):
+    #return [i for i in vel_est if i > min(vel_est) and i < max(vel_est)]
+    for i in range(trim_count):
+	vel_est.remove(max(vel_est))
+	vel_est.remove(min(vel_est))
+    return vel_est
+
+def shift_queue(q, est_vel, shift_num, trim_count, rand_remove, prev_est):
     points = list(q.queue)
-    #print(points)
     vel_est = []
     for i in range(q.qsize() - 1):
-        vel_est.append(calculate_vel(points[i], points[i + 1], rate))
-    avg_vel_est = sum(vel_est)/(q.qsize() - 1)
+    #for i in range(q.qsize() - 3):
+	del_time = (points[i + 1][1] - points[i][1])/(10.0 ** 9)
+	if del_time == 0:
+		del_time = 10000000
+	vel_est.append(calculate_vel(points[i][0], points[i + 1][0], 1/del_time, prev_est))
+    vel_est = trim_outliers(vel_est, trim_count)
+    for i in range(rand_remove):
+	vel_est.remove(random.choice(vel_est))
+    avg_vel_est = sum(vel_est)/len(vel_est)
+    #avg_vel_est = fir_velocity_filter(vel_est)
     est_vel.publish(avg_vel_est)
     for i in range(shift_num):
         robot_pos = q.get()
